@@ -167,7 +167,7 @@ public enum ArgsHandler {
         System.out.println("Concordance Analysis Toolkit");
         System.out.println("Version: " + MainEntry.VERSION);
         System.out.println("Check concordance between QTL status and genotype");
-        System.out.println("usage : CAT [options]");
+        System.out.println("usage : CAT [command] [options]");
 
         System.out.println("\thelp | -h");
         System.out.println("\t\tprint this help and exit the program");
