@@ -49,139 +49,48 @@
  *
  */
 
-package com.handlers;
+package com.utils;
 
-import com.csc.BadFileFormatException;
-import com.csc.ReadGroupException;
-import com.utils.ProgressBar;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.function.Function;
 
 /**
- * project checkStatusConcordance
- * Created by ayyoub on 6/6/17.
+ * project CAT
+ * Created by ayyoub on 11/2/17.
  */
-public class BamHandler {
+public class SimpsonsRule {
 
-    // contains samples names from BAM files
-    private ArrayList<String> lSampleName;
+    private Function<Double, Double> f;
 
-    public BamHandler() {
-        lSampleName = new ArrayList<>();
-    }
+    /**********************************************************************
+     * Integrate f from a to b using Simpson's rule.
+     * Increase N for more precision.
+     **********************************************************************/
+    private double simpson(double a, double b) {
+        int N = 10000;                    // precision parameter
+        double h = (b - a) / (N - 1);     // step size
 
+        // 1/3 terms
+        double sum = 1.0 / 3.0 * (f.apply(a) + f.apply(b));
 
-    //TODO why am i not using this?
-    public ArrayList<String> getSamplesNames() {
-        return lSampleName.size() != 0 ? lSampleName : null;
-    }
-
-    /********************************************
-     * Extracts samples names from BAM files
-     *
-     * @param bamPath List of BAM files paths
-     */
-    public void extractSamplesNames(List<String> bamPath) throws ReadGroupException, BadFileFormatException {
-        StringBuilder sb = new StringBuilder();
-        bamPath.forEach(bam -> {
-            StringBuilder cmd = new StringBuilder("samtools view -H ").append(bam);
-
-            Process p;
-            try {
-                p = Runtime.getRuntime().exec(cmd.toString());
-                p.waitFor();
-                BufferedReader reader =
-                        new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-                String line;
-                sb.setLength(0);
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line).append("\n");
-                }
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            if (sb.length() == 0){
-                throw new BadFileFormatException("BAM");
-            }
-
-            Pattern pattern = Pattern.compile("@RG.*SM:(.+)\t*.*");
-            Matcher matcher = pattern.matcher(sb.toString());
-            if(!matcher.find()) {
-                throw new ReadGroupException();
-            }
-            String sample = matcher.group(1);
-            // in case of sample name is not the last tag
-            if (sample.contains("\t"))
-                sample = sample.split("\t")[0];
-
-            lSampleName.add(sample);
-
-        });
-
-
-    }
-
-    /********************************************
-     * Calls samtools mpileup from system
-     *
-     * @param bamPath List of BAM files paths
-     */
-    public void mpileup(List<String> bamPath, String ref) {
-        // faidx indexing of reference genome
-        StringBuilder faidxCmd = new StringBuilder("samtools faidx ");
-        faidxCmd.append(ref);
-        ProgressBar pb = new ProgressBar();
-        try {
-            Process p = Runtime.getRuntime().exec(faidxCmd.toString());
-            //TODO add message output
-            System.out.println("Indexing reference genome ...");
-            pb.start();
-            p.waitFor();
-            pb.stopAnimation();
-
-        } catch (IOException e) {
-            System.out.println("samtools not found !");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        // 4/3 terms
+        for (int i = 1; i < N - 1; i += 2) {
+            double x = a + h * i;
+            sum += 4.0 / 3.0 * f.apply(x);
         }
 
-        //TODO add message output, this takes so much time
-        // samtools mpileup
-        StringBuilder mpileupCmd = new StringBuilder("samtools mpileup -l pos.tmp --reference ");
-        mpileupCmd.append(ref).append(" ");
-        bamPath.forEach(e -> mpileupCmd.append(e).append(" "));
-        mpileupCmd.append("> pileup.tmp");
-        pb.reset();
-        try {
-            Process p = Runtime.getRuntime().exec(mpileupCmd.toString());
-            System.out.println("Running samtools mpileup ...");
-            pb.start();
-            p.waitFor();
-            pb.stopAnimation();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-            String line;
-            StringBuilder sb = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                sb.append(line).append("\n");
-            }
-
-            System.out.println(sb.toString());
-
-        } catch (IOException e) {
-            System.out.println("samtools not found !");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        // 2/3 terms
+        for (int i = 2; i < N - 1; i += 2) {
+            double x = a + h * i;
+            sum += 2.0 / 3.0 * f.apply(x);
         }
 
+        return sum * h;
     }
+
+    public double integrate(int n, int m){
+        f = p -> 2 * Math.pow(p * (1 - p), n) * Math.pow(1 - 2 * p * (1 - p), m);
+        return simpson(0, 1);
+    }
+
 }
+

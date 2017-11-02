@@ -55,14 +55,13 @@ import com.handlers.ArgsHandler;
 import com.handlers.BamHandler;
 import com.handlers.FisherStrandHandler;
 import com.handlers.VCFHandler;
+import com.utils.SimpsonsRule;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,6 +83,8 @@ class ConcordanceAnalysis {
     private String statusType;
 
     private int snpCount;
+
+    private SimpsonsRule simpson = new SimpsonsRule();
 
 
     ConcordanceAnalysis() {
@@ -169,7 +170,7 @@ class ConcordanceAnalysis {
             statusType = "N";
         }
 
-
+//TODO needs optimisation
         for (String ani : hashQTLstatus.keySet()) {
             switch (statusType) {
                 case "PN":
@@ -397,10 +398,9 @@ class ConcordanceAnalysis {
                     buffer.append(String.format("%.2f", ((double) concordant / (double) tot)));
                 bw.write(buffer.toString());
                 bw.write("\t");
-                double p = alleleFrequency.get(chr).get(pos).getRefAlleleFrequency();
                 int n = alleleFrequency.get(chr).get(pos).getHetCount();
                 int m = alleleFrequency.get(chr).get(pos).getHomCount();
-                double cbc = 2 * Math.pow(p * (1 - p), n) * Math.pow((1 - 2 * p * (1 - p)), m);
+                double cbc = simpson.integrate(n, m);
                 if (cbc <= (1 / snpCount))
                     bw.write("NO\t");
                 else
