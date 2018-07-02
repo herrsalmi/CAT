@@ -104,7 +104,7 @@ public class FisherStrandHandler {
                 Pattern indelFw = Pattern.compile("[-+][0-9]+[ATGC]+");
                 Pattern indelRv = Pattern.compile("[-+][0-9]+[atgc]+");
 
-                Pattern snpFw = Pattern.compile("(?<![0-9])+[atgc]");
+                Pattern snpFw = Pattern.compile("(?<![0-9])+[ATGC]");
                 Pattern snpRv = Pattern.compile("(?<![0-9])+[atgc]");
                 try {
                     BufferedReader br = new BufferedReader(new FileReader("pileup.tmp"));
