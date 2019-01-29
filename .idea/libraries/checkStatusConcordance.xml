@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="checkStatusConcordance">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/artifacts/checkStatusConcordance_jar/checkStatusConcordance.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

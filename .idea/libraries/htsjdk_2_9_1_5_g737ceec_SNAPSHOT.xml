@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="htsjdk-2.9.1-5-g737ceec-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/htsjdk-2.9.1-5-g737ceec-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

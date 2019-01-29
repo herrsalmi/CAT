@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CAT:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/CAT_jar</output-path>
+    <root id="archive" name="CAT.jar">
+      <element id="module-output" name="ConcordanceAnalysisToolkit" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/htsjdk-2.9.1-5-g737ceec-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$APPLICATION_HOME_DIR$/redist/annotations-java8.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
