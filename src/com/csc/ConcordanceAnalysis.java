@@ -96,7 +96,7 @@ class ConcordanceAnalysis {
      * ** check if names on VCF file and QTL status file match
      * @throws IOException file not found
      */
-    private void checkNames()throws IOException {
+    private void checkNames() throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(ArgsHandler.INSTANCE.getVcfPath()));
         String line;
         List<String> vcfIndiv = new ArrayList<>(10);
@@ -129,12 +129,12 @@ class ConcordanceAnalysis {
             System.exit(0);
         }
 
-        if (! vcfIndiv.containsAll(qtlIndiv)) {
+        if (!vcfIndiv.containsAll(qtlIndiv)) {
             System.out.println("Individuals from VCF file doesn't match the ones from QTL status file !");
             System.exit(0);
         }
 
-        if (! qtlIndiv.containsAll(vcfIndiv)) {
+        if (!qtlIndiv.containsAll(vcfIndiv)) {
             System.out.println("Individuals from QTL status file doesn't match the ones from VCF file !");
             System.exit(0);
         }
@@ -146,7 +146,7 @@ class ConcordanceAnalysis {
      * ** put genotype in a hash and check homozygosity
      * @throws IOException file not found
      */
-    private void checkQTL() throws IOException, BadFileFormatException{
+    private void checkQTL() throws IOException, BadFileFormatException {
         BufferedReader br = new BufferedReader(new FileReader(ArgsHandler.INSTANCE.getQtlPath()));
         String line;
         System.out.println("Checking homozygosity from QTL status file");
@@ -285,7 +285,7 @@ class ConcordanceAnalysis {
                     if (fisherStrand != null) {
                         // i starts from 9
                         assert i - 9 >= 0;
-                        if(fisherStrand.get(i - 9).get(snpCount - 1) < ArgsHandler.INSTANCE.getFsThr())
+                        if (fisherStrand.get(i - 9).get(snpCount - 1) < ArgsHandler.INSTANCE.getFsThr())
                             continue;
                     }
 
@@ -293,33 +293,23 @@ class ConcordanceAnalysis {
                     Pattern p = Pattern.compile("^([01])/([01]):.*$");
                     Matcher m = p.matcher(geno);
                     if (m.find()) {
+                        if (hashGenotype.get(chr) == null) {
+                            hashGenotype.put(chr, new HashMap<>());
+                            alleleFrequency.put(chr, new HashMap<>());
+                        }
+
+                        if (hashGenotype.get(chr).get(pos) == null) {
+                            hashGenotype.get(chr).put(pos, new HashMap<>());
+                            alleleFrequency.get(chr).put(pos, new AllelicInfo());
+                        }
+
                         if (m.group(1).equals(m.group(2))) {
-                            if (hashGenotype.get(chr) == null) {
-                                hashGenotype.put(chr, new HashMap<>());
-                                alleleFrequency.put(chr, new HashMap<>());
-                            }
-
-                            if (hashGenotype.get(chr).get(pos) == null) {
-                                hashGenotype.get(chr).put(pos, new HashMap<>());
-                                alleleFrequency.get(chr).put(pos, new AllelicInfo());
-                            }
-
                             hashGenotype.get(chr).get(pos).put(hashAniPosInVCF.get(i),
                                     new GenotypeStatus("homozygous", m.group(1), m.group(2), alt, ref));
                             alleleFrequency.get(chr).get(pos).incrementAlleleCount(m.group(1), m.group(2));
                             alleleFrequency.get(chr).get(pos).incrementHomCount();
 
                         } else {
-                            if (hashGenotype.get(chr) == null) {
-                                hashGenotype.put(chr, new HashMap<>());
-                                alleleFrequency.put(chr, new HashMap<>());
-                            }
-
-                            if (hashGenotype.get(chr).get(pos) == null) {
-                                hashGenotype.get(chr).put(pos, new HashMap<>());
-                                alleleFrequency.get(chr).put(pos, new AllelicInfo());
-                            }
-
                             hashGenotype.get(chr).get(pos).put(hashAniPosInVCF.get(i),
                                     new GenotypeStatus("heterozygous", m.group(1), m.group(2), alt, ref));
                             alleleFrequency.get(chr).get(pos).incrementAlleleCount(m.group(1), m.group(2));
@@ -430,7 +420,7 @@ class ConcordanceAnalysis {
         }
 
         // check if BAM file and ref file are provided, else don't compute fisher strand
-        if (ArgsHandler.INSTANCE.getBamFiles() != null && ArgsHandler.INSTANCE.getRef() !=  null) {
+        if (ArgsHandler.INSTANCE.getBamFiles() != null && ArgsHandler.INSTANCE.getRef() != null) {
             // call vcfHandler
             VCFHandler vcfHandler = new VCFHandler(ArgsHandler.INSTANCE.getVcfPath());
             // returns the path of the file containing positions, should i use it (PS: hard coded in BamHandler)?
@@ -439,10 +429,10 @@ class ConcordanceAnalysis {
             BamHandler bamHandler = new BamHandler();
             try {
                 bamHandler.extractSamplesNames(ArgsHandler.INSTANCE.getBamFiles());
-            } catch (ReadGroupException e1){
+            } catch (ReadGroupException e1) {
                 System.out.println("Please add read group information to BAM files or skip fisher strand computation.");
                 System.exit(3);
-            } catch (BadFileFormatException e2){
+            } catch (BadFileFormatException e2) {
                 System.out.println("Please check BAM files integrity or skip fisher strand computation.");
             }
 

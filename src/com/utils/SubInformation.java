@@ -55,7 +55,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 
-public class SubInformation implements Comparable{
+public class SubInformation implements Comparable {
 
     private int totalIndiv;
     private double percentConc;

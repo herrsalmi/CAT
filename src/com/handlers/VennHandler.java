@@ -89,7 +89,7 @@ public class VennHandler {
                 bw.write(Double.toString(e.getPercentConc()) + "\t");
                 bw.write(e.getSupportingMethods().stream().collect(Collectors.joining("_")) + "\t");
                 bw.write(Integer.toString(e.getSupportingMethods().size()) + "\t");
-                if(e.getSupportingMethods().size() == 1)
+                if (e.getSupportingMethods().size() == 1)
                     bw.write("-");
                 else
                     bw.write(e.isIdenticalAlt() ? "YES" : "NO");
@@ -102,7 +102,7 @@ public class VennHandler {
         bw.close();
     }
 
-    public void writeToVcf(){
+    public void writeToVcf() {
         StringBuilder sb = new StringBuilder();
 
         sb.append("##fileformat=VCFv4.1\n");
@@ -115,18 +115,18 @@ public class VennHandler {
 
         variants.stream().filter(e -> e.getSupportingMethods().size() >= ArgsHandler.INSTANCE.getMethodsNbr())
                 .forEach(e -> sb.append(chr).append("\t").append(e.getPosition()).append("\t.\t").append(e.getRef())
-                .append("\t").append(e.getAlt()).append("\t.\t.\t.\t.\n"));
+                        .append("\t").append(e.getAlt()).append("\t.\t.\t.\t.\n"));
 
-        try (BufferedWriter br = new BufferedWriter(new FileWriter(ArgsHandler.INSTANCE.getOutPath() + ".vcf"))){
+        try (BufferedWriter br = new BufferedWriter(new FileWriter(ArgsHandler.INSTANCE.getOutPath() + ".vcf"))) {
             br.write(sb.toString());
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     private List<SubInformation> extractConcVar(String file, int indivThreshold, double minFraction, String method) {
         List<SubInformation> listExtract = new ArrayList<>(100);
-        try(BufferedReader br = new BufferedReader(new FileReader(file))){
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             String alt;
             String ref;
@@ -141,11 +141,11 @@ public class VennHandler {
                 ref = info[6];
                 alt = info[7];
                 if (Integer.parseInt(info[3]) >= indivThreshold && Double.parseDouble(info[4]) >= minFraction && info[5].equals("NO")) {
-                    listExtract.add(new SubInformation(Long.parseLong(info[1]) ,Integer.parseInt(info[3]),
+                    listExtract.add(new SubInformation(Long.parseLong(info[1]), Integer.parseInt(info[3]),
                             Double.parseDouble(info[4]), ref, alt, method));
                 }
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

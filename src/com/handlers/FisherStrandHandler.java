@@ -53,10 +53,15 @@ package com.handlers;
 
 import com.csc.HypergeometricDistribution;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -92,92 +97,92 @@ public class FisherStrandHandler {
 
         CountDownLatch latch = new CountDownLatch(2);
 
-            new Thread(() -> {
-                String line;
-                String[] info;
-                int index = 4 + offset * 3;
+        new Thread(() -> {
+            String line;
+            String[] info;
+            int index = 4 + offset * 3;
 
-                // pattern for parsing pileup reads
-                Pattern refFw = Pattern.compile("\\.");
-                Pattern refRv = Pattern.compile(",");
+            // pattern for parsing pileup reads
+            Pattern refFw = Pattern.compile("\\.");
+            Pattern refRv = Pattern.compile(",");
 
-                Pattern indelFw = Pattern.compile("[-+][0-9]+[ATGC]+");
-                Pattern indelRv = Pattern.compile("[-+][0-9]+[atgc]+");
+            Pattern indelFw = Pattern.compile("[-+][0-9]+[ATGC]+");
+            Pattern indelRv = Pattern.compile("[-+][0-9]+[atgc]+");
 
-                Pattern snpFw = Pattern.compile("(?<![0-9])+[atgc]");
-                Pattern snpRv = Pattern.compile("(?<![0-9])+[atgc]");
-                try {
-                    BufferedReader br = new BufferedReader(new FileReader("pileup.tmp"));
+            Pattern snpFw = Pattern.compile("(?<![0-9])+[atgc]");
+            Pattern snpRv = Pattern.compile("(?<![0-9])+[atgc]");
+            try {
+                BufferedReader br = new BufferedReader(new FileReader("pileup.tmp"));
 
-                    while ((line = br.readLine()) != null) {
-                        info = line.split("\t");
-                        //in case of depth = 0
-                        if (info[3].equals("0")) {
-                            ArrayList<Integer> tList = new ArrayList<>(4);
-                            tList.add(0);
-                            tList.add(0);
-                            tList.add(0);
-                            tList.add(0);
-                            queue.offer(tList);
-                            continue;
-                        }
-
-                        //hashCount.putIfAbsent(info[0], new LinkedHashMap<>(10000));
-                        //hashCount.get(info[0]).put(info[1], new ArrayList<>(4));
-
+                while ((line = br.readLine()) != null) {
+                    info = line.split("\t");
+                    //in case of depth = 0
+                    if (info[3].equals("0")) {
                         ArrayList<Integer> tList = new ArrayList<>(4);
+                        tList.add(0);
+                        tList.add(0);
+                        tList.add(0);
+                        tList.add(0);
+                        queue.offer(tList);
+                        continue;
+                    }
 
-                        // reference forward and reverse count
-                        tList.add(countOccurrences(refFw, info[index]));
-                        tList.add(countOccurrences(refRv, info[index]));
+                    //hashCount.putIfAbsent(info[0], new LinkedHashMap<>(10000));
+                    //hashCount.get(info[0]).put(info[1], new ArrayList<>(4));
 
-                        // indels count
-                        if (indelFw.matcher(info[index]).find() || indelRv.matcher(info[index]).find()) {
-                            tList.add(countOccurrences(indelFw, info[index]));
-                            tList.add(countOccurrences(indelRv, info[index]));
-                        } // end of indels count
+                    ArrayList<Integer> tList = new ArrayList<>(4);
 
-                        // SNPs count
-                        if (snpFw.matcher(info[index]).find() || snpRv.matcher(info[index]).find()) {
-                            // no indels found before
-                            if (tList.size() == 2) {
+                    // reference forward and reverse count
+                    tList.add(countOccurrences(refFw, info[index]));
+                    tList.add(countOccurrences(refRv, info[index]));
+
+                    // indels count
+                    if (indelFw.matcher(info[index]).find() || indelRv.matcher(info[index]).find()) {
+                        tList.add(countOccurrences(indelFw, info[index]));
+                        tList.add(countOccurrences(indelRv, info[index]));
+                    } // end of indels count
+
+                    // SNPs count
+                    if (snpFw.matcher(info[index]).find() || snpRv.matcher(info[index]).find()) {
+                        // no indels found before
+                        if (tList.size() == 2) {
+                            tList.add(countOccurrences(snpFw, info[index]));
+                            tList.add(countOccurrences(snpRv, info[index]));
+                        } else {
+                            // compare the number of indels and SNPs
+                            if (countOccurrences(snpFw, info[index]) + countOccurrences(snpRv, info[index]) >
+                                    countOccurrences(indelFw, info[index]) + countOccurrences(indelFw, info[index])) {
                                 tList.add(countOccurrences(snpFw, info[index]));
                                 tList.add(countOccurrences(snpRv, info[index]));
-                            } else {
-                                // compare the number of indels and SNPs
-                                if (countOccurrences(snpFw, info[index]) + countOccurrences(snpRv, info[index]) >
-                                        countOccurrences(indelFw, info[index]) + countOccurrences(indelFw, info[index])) {
-                                    tList.add(countOccurrences(snpFw, info[index]));
-                                    tList.add(countOccurrences(snpRv, info[index]));
-                                }
                             }
-                        } else { // end of SNPs count
-                            tList.add(0);
-                            tList.add(0);
                         }
-                        queue.offer(tList);
+                    } else { // end of SNPs count
+                        tList.add(0);
+                        tList.add(0);
                     }
-                } catch (IOException e) {
+                    queue.offer(tList);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            stop = true;
+            latch.countDown();
+        }).start();
+
+        new Thread(() -> {
+            while (!stop || !queue.isEmpty()) {
+                try {
+                    List<Integer> l = queue.poll(100, TimeUnit.MILLISECONDS);
+                    if (l == null)
+                        continue;
+                    fs.add(fisherStrand(l));
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
-                stop = true;
-                latch.countDown();
-            }).start();
-
-            new Thread(() -> {
-                while (!stop || !queue.isEmpty()){
-                    try {
-                        List<Integer> l = queue.poll(100, TimeUnit.MILLISECONDS);
-                        if (l == null)
-                            continue;
-                        fs.add(fisherStrand(l));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                latch.countDown();
-            }).start();
+            }
+            latch.countDown();
+        }).start();
 
 
         try {

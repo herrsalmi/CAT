@@ -141,7 +141,7 @@ public enum ArgsHandler {
     }
 
     void initParams() {
-        switch (tMode){
+        switch (tMode) {
             case CONCORDANCE:
                 qtlPath = params.get("qtl");
                 vcfPath = params.get("vcf");
@@ -180,7 +180,7 @@ public enum ArgsHandler {
         System.out.println("\t\tvcf=<file>                vcf or gzip compressed vcf file");
         System.out.println("\t\to=<string>                output prefix");
         System.out.println("\t\t[gq=<integer>]            genotype quality threshold (DEFAULT 20)");
-        System.out.println("\t\t[fs=<integer>]            fisher strand threshold");
+        System.out.println("\t\t[fs=<integer>]            fisher strand threshold (DEFAULT 10)");
         System.out.println("\t\t[bam=<file,...>]          comma separated BAM files");
         System.out.println("\t\t[ref=[file]]              reference genome in FASTA format");
 
@@ -193,37 +193,37 @@ public enum ArgsHandler {
 
     }
 
-    private void checkParams(Mode mode){
-        switch (mode){
+    private void checkParams(Mode mode) {
+        switch (mode) {
             case CONCORDANCE:
-                if (! params.keySet().contains("qtl")){
+                if (!params.keySet().contains("qtl")) {
                     System.err.println("ERROR! : QTL file not provided !");
                     System.exit(2);
                 }
 
-                if (! params.keySet().contains("vcf")){
+                if (!params.keySet().contains("vcf")) {
                     System.err.println("ERROR! : VCF file not provided !");
                     System.exit(2);
                 }
 
-                if (! params.keySet().contains("o")){
+                if (!params.keySet().contains("o")) {
                     System.err.println("ERROR! : output prefix not provided !");
                     System.exit(2);
                 }
 
-                if (params.keySet().contains("bam") && ! params.keySet().contains("ref")){
+                if (params.keySet().contains("bam") && !params.keySet().contains("ref")) {
                     System.err.println("ERROR! : reference genome should be provided !");
                     System.exit(2);
                 }
 
                 break;
             case VENN:
-                if (! params.keySet().contains("conc")){
+                if (!params.keySet().contains("conc")) {
                     System.err.println("ERROR! : QTL files not provided !");
                     System.exit(2);
                 }
 
-                if (! params.keySet().contains("o")){
+                if (!params.keySet().contains("o")) {
                     System.err.println("ERROR! : output prefix not provided !");
                     System.exit(2);
                 }
@@ -233,7 +233,7 @@ public enum ArgsHandler {
     }
 
     @Contract(pure = true)
-    public Mode getMode(){
+    public Mode getMode() {
         return tMode;
     }
 

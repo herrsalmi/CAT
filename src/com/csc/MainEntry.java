@@ -55,8 +55,6 @@ import com.handlers.ArgsHandler;
 import com.handlers.VennHandler;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MainEntry {
 
@@ -67,7 +65,7 @@ public class MainEntry {
 
         ArgsHandler.INSTANCE.parseArgs(args);
 
-        switch (ArgsHandler.INSTANCE.getMode()){
+        switch (ArgsHandler.INSTANCE.getMode()) {
             case CONCORDANCE:
                 ConcordanceAnalysis concordanceHandler = new ConcordanceAnalysis();
                 concordanceHandler.run();

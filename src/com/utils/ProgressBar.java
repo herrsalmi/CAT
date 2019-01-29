@@ -89,18 +89,20 @@ public class ProgressBar extends Thread {
 
         while (showProgress) {
             System.out.print("\rProcessing " + animation.get(x++ % animation.size()));
-            try { Thread.sleep(400); }
-            catch (Exception ignored) {}
+            try {
+                Thread.sleep(400);
+            } catch (Exception ignored) {
+            }
         }
 
         System.out.println("Done!");
     }
 
-    public synchronized void stopAnimation(){
+    public synchronized void stopAnimation() {
         this.showProgress = false;
     }
 
-    public synchronized void reset(){
+    public synchronized void reset() {
         this.showProgress = true;
     }
 }

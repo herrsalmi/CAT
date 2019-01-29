@@ -87,7 +87,7 @@ public class SimpsonsRule {
         return sum * h;
     }
 
-    public double integrate(int n, int m){
+    public double integrate(int n, int m) {
         f = p -> 2 * Math.pow(p * (1 - p), n) * Math.pow(1 - 2 * p * (1 - p), m);
         return simpson(0, 1);
     }

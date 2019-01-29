@@ -77,7 +77,7 @@ public class BamHandler {
     }
 
 
-    //TODO why am i not using this?
+    //TODO why I am not using this?
     public ArrayList<String> getSamplesNames() {
         return lSampleName.size() != 0 ? lSampleName : null;
     }
@@ -89,9 +89,8 @@ public class BamHandler {
      */
     public void extractSamplesNames(List<String> bamPath) throws ReadGroupException, BadFileFormatException {
         StringBuilder sb = new StringBuilder();
-        bamPath.forEach(bam -> {
-            StringBuilder cmd = new StringBuilder("samtools view -H ").append(bam);
-
+        // in case of sample name is not the last tag
+        bamPath.stream().map(bam -> new StringBuilder("samtools view -H ").append(bam)).forEach(cmd -> {
             Process p;
             try {
                 p = Runtime.getRuntime().exec(cmd.toString());
@@ -107,23 +106,18 @@ public class BamHandler {
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
-
-            if (sb.length() == 0){
+            if (sb.length() == 0) {
                 throw new BadFileFormatException("BAM");
             }
-
             Pattern pattern = Pattern.compile("@RG.*SM:(.+)\t*.*");
             Matcher matcher = pattern.matcher(sb.toString());
-            if(!matcher.find()) {
+            if (!matcher.find()) {
                 throw new ReadGroupException();
             }
             String sample = matcher.group(1);
-            // in case of sample name is not the last tag
             if (sample.contains("\t"))
                 sample = sample.split("\t")[0];
-
             lSampleName.add(sample);
-
         });
 
 
@@ -149,6 +143,7 @@ public class BamHandler {
 
         } catch (IOException e) {
             System.out.println("samtools not found !");
+            System.exit(6);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -179,6 +174,7 @@ public class BamHandler {
 
         } catch (IOException e) {
             System.out.println("samtools not found !");
+            System.exit(6);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
