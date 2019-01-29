@@ -57,6 +57,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -80,7 +82,10 @@ public class VennHandler {
 
         LOGGER.info("Comparing files ...");
 
-        BufferedWriter bw = new BufferedWriter(new FileWriter(ArgsHandler.INSTANCE.getOutPath() + MainEntry.EXTENSION));
+        if (!Files.isDirectory(Paths.get(MainEntry.VENN_OUT_DIR)))
+            Files.createDirectory(Paths.get(MainEntry.VENN_OUT_DIR));
+
+        BufferedWriter bw = new BufferedWriter(new FileWriter(MainEntry.VENN_OUT_DIR + ArgsHandler.INSTANCE.getOutPath() + MainEntry.EXTENSION));
         String sb = "#chr\tposition\tsupporting individuals\tconcordance\ttype\tconfirmed\talt identical?";
         bw.write(sb);
         bw.newLine();
@@ -124,7 +129,7 @@ public class VennHandler {
                 .forEach(e -> sb.append(chr).append("\t").append(e.getPosition()).append("\t.\t").append(e.getRef())
                         .append("\t").append(e.getAlt()).append("\t.\t.\t.\t.\n"));
 
-        try (BufferedWriter br = new BufferedWriter(new FileWriter(ArgsHandler.INSTANCE.getOutPath() + ".vcf"))) {
+        try (BufferedWriter br = new BufferedWriter(new FileWriter(MainEntry.VENN_OUT_DIR + ArgsHandler.INSTANCE.getOutPath() + ".vcf"))) {
             br.write(sb.toString());
         } catch (IOException e) {
             e.printStackTrace();

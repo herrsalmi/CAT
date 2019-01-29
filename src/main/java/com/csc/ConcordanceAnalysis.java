@@ -60,6 +60,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -175,7 +177,7 @@ class ConcordanceAnalysis {
             statusType = "N";
         }
 
-//TODO needs optimisation
+        //TODO needs optimisation
         for (String ani : hashQTLstatus.keySet()) {
             switch (statusType) {
                 case "PN":
@@ -346,7 +348,9 @@ class ConcordanceAnalysis {
     private void compareStatus() throws IOException {
         LOGGER.info("Comparing genotype and QTL status");
         // add extension
-        BufferedWriter bw = new BufferedWriter(new FileWriter(ArgsHandler.INSTANCE.getOutPath() + MainEntry.EXTENSION));
+        if (!Files.isDirectory(Paths.get(MainEntry.CONC_OUT_DIR)))
+            Files.createDirectory(Paths.get(MainEntry.CONC_OUT_DIR));
+        BufferedWriter bw = new BufferedWriter(new FileWriter(MainEntry.CONC_OUT_DIR + ArgsHandler.INSTANCE.getOutPath() + MainEntry.EXTENSION));
         bw.write("chr\tposition\tnb_concordant\ttotal individuals\tperc_concordance\tconcordant by chance\tref\talt");
         bw.newLine();
         String alt = null;
