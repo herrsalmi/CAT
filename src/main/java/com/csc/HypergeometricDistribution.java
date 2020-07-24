@@ -13,12 +13,16 @@ import java.util.Objects;
  */
 public class HypergeometricDistribution {
 
-    private static final int maxSize = 42;
-    private static ArrayList<BigInteger> f = new ArrayList<>();
+    private static final int MAX_SIZE = 42;
+    private static final ArrayList<BigInteger> f = new ArrayList<>();
 
     static {
         f.add(BigInteger.ONE);
-        getFactorial(maxSize);
+        getFactorial(MAX_SIZE);
+    }
+
+    private HypergeometricDistribution(){
+
     }
 
     /**
@@ -44,7 +48,7 @@ public class HypergeometricDistribution {
      * @return Binomial coefficient or null for invalid inputs.
      */
     static BigInteger getBinomialCoefficient(int n, int k)
-            throws OutOfMemoryError, NullPointerException {
+            throws OutOfMemoryError {
         if (k < 1 || k > n)
             return null;
         return BigInteger.valueOf(n).pow(k).divide(Objects.requireNonNull(getFactorial(k)));
@@ -58,7 +62,7 @@ public class HypergeometricDistribution {
      * @param a ArrayList, nonnegative integers
      * @return Hypergeometric distribution.
      */
-    public static BigDecimal getValue(List<Integer> a, int scale, RoundingMode rm) throws OutOfMemoryError, NullPointerException {
+    public static BigDecimal getValue(List<Integer> a, int scale, RoundingMode rm) throws OutOfMemoryError {
         return getValue(new int[][]{{a.get(0), a.get(1)}, {a.get(2), a.get(3)}}, scale, rm);
     }
 
@@ -70,10 +74,10 @@ public class HypergeometricDistribution {
      * @param a table [], nonnegative integers
      * @return Hypergeometric distribution.
      */
-    public static BigDecimal getValue(int[][] a, int scale, RoundingMode rm) throws OutOfMemoryError, NullPointerException {
-        ArrayList<Integer> R = new ArrayList<>();
-        ArrayList<Integer> C = new ArrayList<>();
-        ArrayList<Integer> E = new ArrayList<>();
+    public static BigDecimal getValue(int[][] a, int scale, RoundingMode rm) throws OutOfMemoryError {
+        ArrayList<Integer> lR = new ArrayList<>();
+        ArrayList<Integer> lC = new ArrayList<>();
+        ArrayList<Integer> lE = new ArrayList<>();
         int n = 0;
 
         for (int i = 0; i < a.length; i++) {
@@ -82,15 +86,15 @@ public class HypergeometricDistribution {
                     return null;
 
                 n += a[i][j];
-                add(C, j, a[i][j]);
-                add(R, i, a[i][j]);
-                E.add(a[i][j]);
+                add(lC, j, a[i][j]);
+                add(lR, i, a[i][j]);
+                lE.add(a[i][j]);
             }
         }
         BigDecimal term1 = //
-                new BigDecimal(multiplyFactorials(C).multiply(multiplyFactorials(R)));
+                new BigDecimal(multiplyFactorials(lC).multiply(multiplyFactorials(lR)));
         BigDecimal term2 = //
-                new BigDecimal(Objects.requireNonNull(getFactorial(n)).multiply(multiplyFactorials(E)));
+                new BigDecimal(Objects.requireNonNull(getFactorial(n)).multiply(multiplyFactorials(lE)));
 
         return term1.divide(term2, scale, rm);
     }
